@@ -38,6 +38,27 @@ def _normalize(value) -> str:
     return str(value).strip().lower()
 
 
+DEBUG_FIELDS = ["evidence_standard_met", "valid_image", "severity", "issue_type"]
+DEBUG_ROWS = 3
+
+
+def print_debug(expected: pd.DataFrame, predicted: pd.DataFrame) -> None:
+    print("\n--- DEBUG: predicted vs expected (first 3 rows) ---")
+    for i in range(min(DEBUG_ROWS, len(expected))):
+        print(f"\nRow {i + 1}:")
+        for field in DEBUG_FIELDS:
+            pred_val = predicted[field].iloc[i]
+            exp_val = expected[field].iloc[i]
+            pred_repr = f'"{pred_val}"' if isinstance(pred_val, str) else str(pred_val)
+            exp_repr = f'"{exp_val}"' if isinstance(exp_val, str) else str(exp_val)
+            pred_type = type(pred_val).__name__
+            exp_type = type(exp_val).__name__
+            print(
+                f"  {field:<26} predicted={pred_repr} ({pred_type})  expected={exp_repr} ({exp_type})"
+            )
+    print()
+
+
 def compute_metrics(expected: pd.DataFrame, predicted: pd.DataFrame) -> dict:
     metrics = {}
     for field in EVAL_FIELDS:
@@ -125,6 +146,7 @@ async def evaluate() -> None:
     await run_pipeline(input_csv, EVAL_OUTPUT_CSV)
 
     predicted = pd.read_csv(EVAL_OUTPUT_CSV)
+    print_debug(df, predicted)
     metrics = compute_metrics(df, predicted)
 
     print_table(metrics)
