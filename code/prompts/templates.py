@@ -62,14 +62,13 @@ none vs unknown rule (applies to both issue_type and severity):
 You must use ONLY the exact values listed above. Do not use synonyms,
 variations, or capitalization differences. Return only lowercase values.
 
-Before returning JSON, reason step by step about what you see in the images.
-Wrap your reasoning in <reasoning>...</reasoning> tags, then output the JSON object after the closing tag.
+Analyze the images carefully, then return ONLY a valid JSON object.
+No explanation, no reasoning text, no markdown. Start your response with {{ and end with }}
 
 Rules:
 - Base every answer on what is visually present in the images. Do not infer beyond what is visible.
 - If multiple images are provided, consider all of them together.
 - If the images show the wrong object or clearly contradict the claim, set valid_image=false and issue_type="unknown".
-- After </reasoning>, output ONLY valid JSON. No markdown, no code fences.
 """
 
 

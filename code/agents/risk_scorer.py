@@ -5,12 +5,12 @@ Applies risk rules based on historical claim frequency, claim object,
 and severity to populate the risk_flags field.
 """
 
-import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from agents.utils import extract_json
 from config import MAX_TOKENS, MODEL
 from prompts.templates import build_risk_scorer_prompt
 
@@ -29,7 +29,7 @@ async def score_risk(
         messages=[{"role": "user", "content": prompt}],
     )
 
-    try:
-        return json.loads(response.content[0].text)
-    except (json.JSONDecodeError, IndexError, AttributeError):
-        return {"risk_flags": "manual_review_required"}
+    result = extract_json(response.content[0].text.strip())
+    if result is not None:
+        return result
+    return {"risk_flags": "manual_review_required"}

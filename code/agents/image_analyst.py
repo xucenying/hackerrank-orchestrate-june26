@@ -6,12 +6,12 @@ prompt, and returns per-image analysis results.
 """
 
 import base64
-import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from agents.utils import extract_json
 from config import DATASET_DIR, MAX_TOKENS, MODEL
 from prompts.templates import build_image_analyst_prompt
 
@@ -60,20 +60,15 @@ async def analyze_images(claim_row: dict, evidence_requirements: str, client) ->
     )
 
     raw = response.content[0].text.strip()
-    # Strip <reasoning>...</reasoning> block produced by chain-of-thought instruction
-    if "</reasoning>" in raw:
-        raw = raw.split("</reasoning>", 1)[1]
-    raw = raw.replace("```json", "").replace("```", "").strip()
-
-    try:
-        return json.loads(raw)
-    except (json.JSONDecodeError, IndexError, AttributeError):
-        return {
-            "valid_image": False,
-            "issue_type": "unknown",
-            "object_part": "unknown",
-            "severity": "unknown",
-            "supporting_image_ids": "none",
-            "evidence_standard_met": False,
-            "evidence_standard_met_reason": "parse error",
-        }
+    result = extract_json(raw)
+    if result is not None:
+        return result
+    return {
+        "valid_image": False,
+        "issue_type": "unknown",
+        "object_part": "unknown",
+        "severity": "unknown",
+        "supporting_image_ids": "none",
+        "evidence_standard_met": False,
+        "evidence_standard_met_reason": "parse error",
+    }
