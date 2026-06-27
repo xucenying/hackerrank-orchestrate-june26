@@ -1,0 +1,6 @@
+anthropic
+pandas
+aiofiles
+python-dotenv
+ruff
+pre-commit
