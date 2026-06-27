@@ -8,7 +8,7 @@ asyncio.gather, and writes results to output.csv.
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import asyncio
 

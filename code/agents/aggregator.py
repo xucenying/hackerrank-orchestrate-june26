@@ -5,6 +5,11 @@ Takes results from context_builder, image_analyst, claim_verifier, and
 risk_scorer and produces a dict matching the 14-column output schema.
 """
 
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 
 def aggregate(
     claim_row: dict,
