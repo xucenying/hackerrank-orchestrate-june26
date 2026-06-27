@@ -60,6 +60,9 @@ async def analyze_images(claim_row: dict, evidence_requirements: str, client) ->
     )
 
     raw = response.content[0].text.strip()
+    # Strip <reasoning>...</reasoning> block produced by chain-of-thought instruction
+    if "</reasoning>" in raw:
+        raw = raw.split("</reasoning>", 1)[1]
     raw = raw.replace("```json", "").replace("```", "").strip()
 
     try:

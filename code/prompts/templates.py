@@ -42,14 +42,12 @@ severity calibration:
 - Reserve "low" for damage that is barely visible or purely cosmetic.
 
 issue_type must be exactly one of:
-dent, scratch, crack, glass_shatter, broken_part, missing_part,
-torn_packaging, crushed_packaging, water_damage, stain, none, unknown
+dent, scratch, crack, broken_part, torn_packaging, crushed_packaging,
+water_damage, stain, none, unknown
 - dent: deformation/depression in a surface without breaking it
 - scratch: surface mark that removes paint or coating
 - crack: fracture line through a material (glass, plastic, casing)
-- glass_shatter: glass broken into multiple fragments
 - broken_part: a component is snapped off or structurally separated
-- missing_part: a component is absent from where it should be
 - torn_packaging: outer packaging has a rip, hole, or tear
 - crushed_packaging: outer packaging is deformed/compressed
 - water_damage: liquid has infiltrated the object (swelling, corrosion, short circuit signs)
@@ -64,14 +62,14 @@ none vs unknown rule (applies to both issue_type and severity):
 You must use ONLY the exact values listed above. Do not use synonyms,
 variations, or capitalization differences. Return only lowercase values.
 
-Before returning JSON, reason step by step about what you see in the images,
-then output ONLY the final JSON object.
+Before returning JSON, reason step by step about what you see in the images.
+Wrap your reasoning in <reasoning>...</reasoning> tags, then output the JSON object after the closing tag.
 
 Rules:
 - Base every answer on what is visually present in the images. Do not infer beyond what is visible.
 - If multiple images are provided, consider all of them together.
 - If the images show the wrong object or clearly contradict the claim, set valid_image=false and issue_type="unknown".
-- Return ONLY valid JSON. No explanation, no markdown, no code fences.
+- After </reasoning>, output ONLY valid JSON. No markdown, no code fences.
 """
 
 

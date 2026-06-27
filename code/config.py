@@ -20,7 +20,7 @@ if not ANTHROPIC_API_KEY:
     )
 
 MODEL = "claude-sonnet-4-6"
-MAX_TOKENS = 1000
+MAX_TOKENS = 2048
 MAX_CONCURRENT_CLAIMS = 5
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
