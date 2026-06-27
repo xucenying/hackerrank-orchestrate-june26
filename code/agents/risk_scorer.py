@@ -6,9 +6,13 @@ and severity to populate the risk_flags field.
 """
 
 import json
+import sys
+from pathlib import Path
 
-from code.config import MAX_TOKENS, MODEL
-from code.prompts.templates import build_risk_scorer_prompt
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from config import MAX_TOKENS, MODEL
+from prompts.templates import build_risk_scorer_prompt
 
 
 async def score_risk(

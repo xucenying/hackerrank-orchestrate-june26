@@ -7,12 +7,16 @@ Runs the verification pipeline against dataset/sample_claims.csv
 
 import asyncio
 import pathlib
+import sys
 import textwrap
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import pandas as pd
 
-from code.config import SAMPLE_CLAIMS_CSV
-from code.main import run_pipeline
+from config import SAMPLE_CLAIMS_CSV
+from main import run_pipeline
 
 EVAL_DIR = pathlib.Path(__file__).parent
 EVAL_OUTPUT_CSV = EVAL_DIR / "eval_output.csv"

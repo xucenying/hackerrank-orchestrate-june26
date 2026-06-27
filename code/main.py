@@ -5,6 +5,11 @@ Reads dataset/claims.csv, processes each claim concurrently via
 asyncio.gather, and writes results to output.csv.
 """
 
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import asyncio
 
 import anthropic

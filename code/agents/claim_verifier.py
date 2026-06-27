@@ -6,9 +6,13 @@ evidence requirements to determine evidence_standard_met and issue_type.
 """
 
 import json
+import sys
+from pathlib import Path
 
-from code.config import MAX_TOKENS, MODEL
-from code.prompts.templates import build_claim_verifier_prompt
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from config import MAX_TOKENS, MODEL
+from prompts.templates import build_claim_verifier_prompt
 
 
 async def verify_claim(claim_row: dict, image_analysis: dict, client) -> dict:

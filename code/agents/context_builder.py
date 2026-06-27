@@ -5,9 +5,14 @@ Reads claim row, user history, and evidence requirements,
 and returns a structured context dict ready for downstream agents.
 """
 
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import pandas as pd
 
-from code.config import EVIDENCE_REQUIREMENTS_CSV, USER_HISTORY_CSV
+from config import EVIDENCE_REQUIREMENTS_CSV, USER_HISTORY_CSV
 
 
 async def build_context(claim_row: dict, client) -> dict:
