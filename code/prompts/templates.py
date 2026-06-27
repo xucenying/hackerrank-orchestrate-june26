@@ -25,7 +25,7 @@ Analyze every provided image and return a single JSON object with exactly these 
   issue_type             — exactly one of the values listed below
   object_part            — the specific part of the {claim_object} that is damaged (e.g. "front bumper", "screen", "corner"); use "unknown" if not determinable
   severity               — exactly one of the values listed below
-  supporting_image_ids   — list of image identifiers (filenames or indices) that best support the claim; empty list if none
+  supporting_image_ids   — semicolon-separated string of image filenames that best support the claim (e.g. "img_1.jpg;img_2.jpg"), or "none" if no image supports the claim
   evidence_standard_met  — boolean: true if the submitted images satisfy the minimum evidence requirements above
   evidence_standard_met_reason — one sentence explaining why the evidence standard was or was not met
 
@@ -42,12 +42,14 @@ severity calibration:
 - Reserve "low" for damage that is barely visible or purely cosmetic.
 
 issue_type must be exactly one of:
-dent, scratch, crack, broken_part, torn_packaging, crushed_packaging,
-water_damage, stain, none, unknown
+dent, scratch, crack, glass_shatter, broken_part, missing_part,
+torn_packaging, crushed_packaging, water_damage, stain, none, unknown
 - dent: deformation/depression in a surface without breaking it
 - scratch: surface mark that removes paint or coating
 - crack: fracture line through a material (glass, plastic, casing)
+- glass_shatter: glass broken into multiple fragments
 - broken_part: a component is snapped off or structurally separated
+- missing_part: a component is absent from where it should be
 - torn_packaging: outer packaging has a rip, hole, or tear
 - crushed_packaging: outer packaging is deformed/compressed
 - water_damage: liquid has infiltrated the object (swelling, corrosion, short circuit signs)
@@ -61,6 +63,9 @@ none vs unknown rule (applies to both issue_type and severity):
 
 You must use ONLY the exact values listed above. Do not use synonyms,
 variations, or capitalization differences. Return only lowercase values.
+
+Before returning JSON, reason step by step about what you see in the images,
+then output ONLY the final JSON object.
 
 Rules:
 - Base every answer on what is visually present in the images. Do not infer beyond what is visible.
@@ -95,9 +100,26 @@ Rules:
 - "contradicted": use this when the images actively disprove the claim — for example: the image shows a different object than claimed, the object appears completely undamaged when the user claims damage, or the damage shown is of a completely different type or location than described.
 - "not_enough_information": the images are ambiguous, blurry, show the wrong angle, or are missing key evidence needed to confirm or deny the claim.
 - When valid_image is false or issue_type is "unknown", prefer "not_enough_information" over "contradicted" unless the wrong-object evidence is unambiguous.
-- When the image analysis shows no_damage or issue_type "none" but the user claims damage, use "contradicted".
+- When the image analysis shows issue_type "none" but the user claims damage, use "contradicted".
 - Ground the justification in concrete observations from the image analysis. Do not speculate.
 - Return ONLY valid JSON. No explanation, no markdown, no code fences.
+
+Examples:
+
+Example 1 — supported:
+User claim: "My laptop screen cracked after I dropped it."
+Image analysis: {{"valid_image": true, "issue_type": "crack", "object_part": "screen", "severity": "medium", "evidence_standard_met": true}}
+Output: {{"claim_status": "supported", "claim_status_justification": "The image clearly shows a crack across the laptop screen, consistent with the user's description of a drop impact."}}
+
+Example 2 — contradicted:
+User claim: "My car has a large dent on the rear bumper."
+Image analysis: {{"valid_image": true, "issue_type": "none", "object_part": "unknown", "severity": "none", "evidence_standard_met": false}}
+Output: {{"claim_status": "contradicted", "claim_status_justification": "The image shows the rear bumper in undamaged condition with no visible dent, directly contradicting the user's claim of impact damage."}}
+
+Example 3 — not_enough_information:
+User claim: "Water damaged my laptop keyboard."
+Image analysis: {{"valid_image": false, "issue_type": "unknown", "object_part": "unknown", "severity": "unknown", "evidence_standard_met": false}}
+Output: {{"claim_status": "not_enough_information", "claim_status_justification": "The submitted image does not clearly show the laptop keyboard, making it impossible to confirm or deny the claimed water damage."}}
 """
 
 
