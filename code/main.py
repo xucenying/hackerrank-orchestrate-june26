@@ -15,12 +15,12 @@ import asyncio
 import anthropic
 import pandas as pd
 
-from code.agents.aggregator import aggregate
-from code.agents.claim_verifier import verify_claim
-from code.agents.context_builder import build_context
-from code.agents.image_analyst import analyze_images
-from code.agents.risk_scorer import score_risk
-from code.config import (
+from agents.aggregator import aggregate
+from agents.claim_verifier import verify_claim
+from agents.context_builder import build_context
+from agents.image_analyst import analyze_images
+from agents.risk_scorer import score_risk
+from config import (
     ANTHROPIC_API_KEY,
     CLAIMS_CSV,
     MAX_CONCURRENT_CLAIMS,
