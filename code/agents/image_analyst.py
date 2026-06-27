@@ -12,14 +12,20 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from config import MAX_TOKENS, MODEL, ROOT_DIR
+from config import DATASET_DIR, MAX_TOKENS, MODEL
 from prompts.templates import build_image_analyst_prompt
 
-_MEDIA_TYPES = {
-    ".jpg": "image/jpeg",
-    ".jpeg": "image/jpeg",
-    ".png": "image/png",
-}
+
+def _detect_media_type(data: bytes) -> str:
+    if data[:4] == b"\x89PNG":
+        return "image/png"
+    if data[:3] == b"\xff\xd8\xff":
+        return "image/jpeg"
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return "image/webp"
+    if data[:6] in (b"GIF87a", b"GIF89a"):
+        return "image/gif"
+    return "image/jpeg"
 
 
 async def analyze_images(claim_row: dict, evidence_requirements: str, client) -> dict:
@@ -29,13 +35,14 @@ async def analyze_images(claim_row: dict, evidence_requirements: str, client) ->
 
     image_blocks = []
     for rel_path in image_paths:
-        full_path = ROOT_DIR / rel_path
-        media_type = _MEDIA_TYPES.get(full_path.suffix.lower(), "image/jpeg")
-        data = base64.standard_b64encode(full_path.read_bytes()).decode("utf-8")
+        full_path = DATASET_DIR / rel_path
+        raw_bytes = full_path.read_bytes()
+        media_type = _detect_media_type(raw_bytes)
+        b64 = base64.standard_b64encode(raw_bytes).decode("utf-8")
         image_blocks.append(
             {
                 "type": "image",
-                "source": {"type": "base64", "media_type": media_type, "data": data},
+                "source": {"type": "base64", "media_type": media_type, "data": b64},
             }
         )
 

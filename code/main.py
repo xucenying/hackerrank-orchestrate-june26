@@ -96,7 +96,7 @@ async def run_pipeline(input_csv, output_csv) -> None:
     out_df = pd.DataFrame(results, columns=OUTPUT_COLUMNS)
     out_df.to_csv(output_csv, index=False)
 
-    print(f"\nDone. {len(results)} claim(s) processed → {output_csv}")
+    print(f"\nDone. {len(results)} claim(s) processed -> {output_csv}")
 
 
 def main() -> None:

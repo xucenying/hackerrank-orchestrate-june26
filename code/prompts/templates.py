@@ -22,16 +22,45 @@ Minimum evidence requirements for this object type:
 Analyze every provided image and return a single JSON object with exactly these keys:
 
   valid_image            — boolean: true if at least one image clearly shows the claimed object
-  issue_type             — one of: physical_damage | liquid_damage | theft | loss | no_damage | unknown
+  issue_type             — one of: dent | scratch | crack | broken_part | water_damage | stain | crushed_packaging | torn_packaging | none | unknown
   object_part            — the specific part of the {claim_object} that is damaged (e.g. "front bumper", "screen", "corner"); use "unknown" if not determinable
-  severity               — one of: minor | moderate | severe | total_loss | none | unknown
+  severity               — one of: low | medium | high | none | unknown
   supporting_image_ids   — list of image identifiers (filenames or indices) that best support the claim; empty list if none
   evidence_standard_met  — boolean: true if the submitted images satisfy the minimum evidence requirements above
   evidence_standard_met_reason — one sentence explaining why the evidence standard was or was not met
 
+issue_type definitions:
+- dent: deformation/depression in a surface without breaking it
+- scratch: surface mark that removes paint or coating
+- crack: fracture line through a material (glass, plastic, casing)
+- broken_part: a component is snapped off, shattered, or structurally separated
+- water_damage: liquid has infiltrated the object (swelling, corrosion, short circuit signs)
+- stain: discolouration on a surface without structural damage
+- crushed_packaging: outer packaging is deformed/compressed
+- torn_packaging: outer packaging has a rip, hole, or tear
+- none: images are clear and show NO damage at all
+- unknown: images are too blurry, obstructed, or off-angle to identify the issue type
+
+severity definitions:
+- high: catastrophic damage — object is inoperable, totalled, or beyond simple repair
+- medium: clearly visible damage requiring repair; object may still partially function
+- low: minor cosmetic damage (small scuff, hairline scratch); object is fully functional
+- none: no damage is present and visible in the images
+- unknown: images are too unclear to assess severity — use this when valid_image is false or images are ambiguous
+
+none vs unknown rule (applies to both issue_type and severity):
+- Use "none" ONLY when you can positively confirm that no damage is present.
+- Use "unknown" whenever the images are unclear, missing, show the wrong object, or do not let you make a confident determination.
+
+severity calibration:
+- Most everyday visible damage (dents, scratches, cracks, stains) is "medium".
+- Reserve "high" for objects that are completely destroyed, crushed, or inoperable.
+- Reserve "low" for damage that is barely visible or purely cosmetic.
+
 Rules:
 - Base every answer on what is visually present in the images. Do not infer beyond what is visible.
 - If multiple images are provided, consider all of them together.
+- If the images show the wrong object or clearly contradict the claim, set valid_image=false and issue_type="unknown".
 - Return ONLY valid JSON. No explanation, no markdown, no code fences.
 """
 
@@ -58,8 +87,10 @@ Return a JSON object with exactly these keys:
 
 Rules:
 - "supported": the images clearly show damage consistent with what the user described.
-- "contradicted": the images clearly contradict the user's description (e.g. wrong object, no visible damage).
-- "not_enough_information": the images are ambiguous, missing, or do not address key aspects of the claim.
+- "contradicted": use this when the images actively disprove the claim — for example: the image shows a different object than claimed, the object appears completely undamaged when the user claims damage, or the damage shown is of a completely different type or location than described.
+- "not_enough_information": the images are ambiguous, blurry, show the wrong angle, or are missing key evidence needed to confirm or deny the claim.
+- When valid_image is false or issue_type is "unknown", prefer "not_enough_information" over "contradicted" unless the wrong-object evidence is unambiguous.
+- When the image analysis shows no_damage or issue_type "none" but the user claims damage, use "contradicted".
 - Ground the justification in concrete observations from the image analysis. Do not speculate.
 - Return ONLY valid JSON. No explanation, no markdown, no code fences.
 """
